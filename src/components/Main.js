@@ -17,7 +17,8 @@ import {
   COLOR_BLUE,
   STANDARD_PADDING,
   MAP_CIRCLE_INSET,
-  COLOR_GRAY
+  COLOR_GRAY,
+  COLOR_BROWN
 } from '../constants';
 import {
   USER_LOGIN,
@@ -89,7 +90,11 @@ class Main extends Component {
       headerLeft: (
         <Button title="Logout" onPress={() => navigation.dispatch({type:USER_LOGIN})} />
       ),
-      title: 'S&S'
+      title: 'Sweaters & Sustenance',
+      headerBackTitleStyle: {
+        color: COLOR_BLUE
+      },
+      // headerTintColor: '#fff'
     }
   }
 
@@ -117,7 +122,10 @@ class Main extends Component {
         latitude: data.latitude,
         longitude: data.longitude,
       },
-      radius: Math.min(data.longitudeDelta,data.longitudeDelta) * MAP_CIRCLE_INSET
+      region: {
+        latitudeDelta: data.latitudeDelta,
+        longitudeDelta: data.longitudeDelta
+      }
     });
   }
 
@@ -134,8 +142,8 @@ class Main extends Component {
               initialRegion={{
                 latitude:  this.props.marker.location.coordinates.latitude,
                 longitude: this.props.marker.location.coordinates.longitude,
-                latitudeDelta: this.props.marker.location.radius / MAP_CIRCLE_INSET,
-                longitudeDelta: this.props.marker.location.radius / MAP_CIRCLE_INSET,
+                latitudeDelta: this.props.marker.location.region.latitudeDelta,
+                longitudeDelta: this.props.marker.location.region.longitudeDelta
               }}
               showsUserLocation={true}
               onRegionChange={this.regionChanged}

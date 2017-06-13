@@ -95,7 +95,10 @@ const initialMarkerState = {
       latitude: 0,
       longitude: 0
     },
-    radius: 0.05,
+    region: {
+      latitudeDelta: 0,
+      longitudeDelta: 0
+    },
     locationUpdated: false
   },
   counts: {
@@ -149,7 +152,7 @@ const marker = (state = initialMarkerState, action) => {
       return Object.assign({},state,{
         location: Object.assign({},state.location,{
           coordinates: action.location.coordinates,
-          radius: action.location.radius,
+          region: action.location.region,
           locationUpdated: action.location.locationUpdated
         })
       });

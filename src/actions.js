@@ -1,10 +1,12 @@
 import ReactNative from 'react-native';
+import geolib from 'geolib';
 var {
   PermissionsAndroid,
   Platform
 } = ReactNative;
 import {
-  API_URL
+  API_URL,
+  MAP_CIRCLE_INSET
 } from './constants';
 
 export const USER_LOGIN = 'USER_LOGIN';
@@ -124,7 +126,10 @@ export const setMarkerLocation = (location) => {
         latitude: location.coordinates.latitude,
         longitude: location.coordinates.longitude
       },
-      radius: location.radius,
+      region: {
+        latitudeDelta: location.region.latitudeDelta,
+        longitudeDelta: location.region.longitudeDelta
+      },
       locationUpdated: true
     }
   }
@@ -143,7 +148,10 @@ export const newMarker = () => {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
             },
-            radius: 0.005,
+            region: {
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005
+            },
             locationUpdated: false
           }
         })
@@ -169,19 +177,50 @@ export const clearMarker = () => {
 
 export const saveMarker = () => {
   return (dispatch,getState) => {
+    const deltaY = geolib.getDistance(
+      {
+        latitude: getState().marker.location.coordinates.latitude,
+        longitude: getState().marker.location.coordinates.longitude
+      },
+      {
+        latitude: getState().marker.location.coordinates.latitude - (getState().marker.location.region.latitudeDelta * MAP_CIRCLE_INSET),
+        longitude: getState().marker.location.coordinates.longitude
+      }
+    );
+    const deltaX = geolib.getDistance(
+      {
+        latitude: getState().marker.location.coordinates.latitude,
+        longitude: getState().marker.location.coordinates.longitude
+      },
+      {
+        latitude: getState().marker.location.coordinates.latitude,
+        longitude: getState().marker.location.coordinates.longitude - (getState().marker.location.region.longitudeDelta * MAP_CIRCLE_INSET)
+      }
+    );
     const body = {
       latitude: getState().marker.location.coordinates.latitude,
       longitude: getState().marker.location.coordinates.longitude,
-      radius: getState().marker.location.radius,
+      radius: Math.min(deltaY,deltaX) / 2,
       homeless: getState().marker.counts.homeless,
       meals: getState().marker.counts.meals,
       clothes: getState().marker.counts.clothes
     }
-    console.log(body)
     authenticatedRequest(dispatch,getState,'/api/marker','POST',body,(response) => {
       dispatch({type: SAVED_MARKER})
     },(error) => {
       dispatch({type: SAVE_MARKER_FAILED, error})
     })
   }
+}
+
+function measure(lat1, lon1, lat2, lon2) {  // generally used geo measurement function
+  var R = 6378.137; // Radius of earth in KM
+  var dLat = lat2 * Math.PI / 180 - lat1 * Math.PI / 180;
+  var dLon = lon2 * Math.PI / 180 - lon1 * Math.PI / 180;
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+  Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c;
+  return d * 1000; // meters
 }

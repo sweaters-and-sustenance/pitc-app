@@ -23,19 +23,47 @@ const {
   Text,
   View,
   TouchableHighlight,
-  TextInput
+  TextInput,
+  Image,
+  StatusBar
 } = ReactNative;
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
+    flex: 1,
+    flexDirection: 'column',
+  },
+  backgroundImage: {
+    resizeMode: 'cover',
+    width: null,
+    height: null,
+    flex: 1,
+  },
+  foregroundContainer: {
+    // justifyContent: 'center',
     marginTop: STANDARD_PADDING * 4,
     padding: STANDARD_PADDING,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-start',
+    // alignItems: 'flex-start',
   },
   title: {
     fontSize: STANDARD_PADDING * 3,
     alignSelf: 'center',
     marginBottom: STANDARD_PADDING * 1.5
+  },
+  logo: {
+    resizeMode: 'contain',
+    width: null,
+    height: null,
+    flex: 0.2
+  },
+  form: {
+    flex: 0.8
   },
   button: {
     marginBottom: STANDARD_PADDING
@@ -79,28 +107,34 @@ class Login extends Component {
 
   render() {
     return (
-      <View style={[styles.container,misc.container]}>
-        <View>
-          <Text style={styles.title}>Login on Create Account</Text>
-        </View>
-        { this.props.user.error != null &&
-          <View style={[styles.errorContainer]}>
-            <Text style={styles.errorText}>{this.props.user.error}</Text>
+      <View style={[styles.container]}>
+        <StatusBar
+          barStyle="light-content"
+          />
+        <Image style={styles.backgroundImage} source={require('../../assets/img/wood.jpg')} />
+        <View style={[styles.foregroundContainer]}>
+          <Image style={[styles.row,styles.logo]} source={require('../../assets/img/white_logo.png')} />
+          <View style={[styles.form]}>
+            { this.props.user.error != null &&
+              <View style={[styles.row,styles.errorContainer]}>
+                <Text style={styles.errorText}>{this.props.user.error}</Text>
+              </View>
+            }
+            <View style={[styles.row]}>
+              <TextInput autoFocus={true} keyboardType="email-address" autoCapitalize="none" placeholder="Email" style={inputs.base} onChangeText={(email) => this.setState({email})} />
+            </View>
+            <View style={[styles.row]}>
+              <TextInput placeholder="Password" secureTextEntry={true} style={inputs.base} onChangeText={(password) => this.setState({password})} />
+            </View>
+            <View style={[styles.row]}>
+              <TouchableHighlight style={[buttons.base,buttons.primary,styles.button]} onPress={this.signup} underlayColor={COLOR_GRAY}>
+                <Text style={buttons.primaryText}>Signup</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={[buttons.base,buttons.secondary,styles.button]} onPress={this.login} underlayColor={COLOR_GRAY}>
+                <Text style={buttons.secondaryText}>Login</Text>
+              </TouchableHighlight>
+            </View>
           </View>
-        }
-        <View>
-          <TextInput autoFocus={true} keyboardType="email-address" autoCapitalize="none" placeholder="Email" style={inputs.base} onChangeText={(email) => this.setState({email})} />
-        </View>
-        <View>
-          <TextInput placeholder="Password" secureTextEntry={true} style={inputs.base} onChangeText={(password) => this.setState({password})} />
-        </View>
-        <View>
-          <TouchableHighlight style={[buttons.base,buttons.primary,styles.button]} onPress={this.signup} underlayColor={COLOR_GRAY}>
-            <Text style={buttons.primaryText}>Signup</Text>
-          </TouchableHighlight>
-          <TouchableHighlight style={[buttons.base,buttons.secondary,styles.button]} onPress={this.login} underlayColor={COLOR_GRAY}>
-            <Text style={buttons.secondaryText}>Login</Text>
-          </TouchableHighlight>
         </View>
       </View>
     );
